@@ -2,6 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using API.Common;
+using Application;
+using Application.Batch.Commands.CreateBatch;
+using Application.Batch.Queries.GetBatchDetail;
+using FluentValidation.AspNetCore;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -27,13 +33,17 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddApplication();
+            services.AddControllers()
+            .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<CreateBatchCommandValidator>());
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen();
             services.AddDbContext<DataContext>(opt => {
                 opt.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection"));
             });
+
+            //services.AddMediatR(typeof(BatchDetailHandler).Assembly);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -55,6 +65,7 @@ namespace API
             });
 
             // app.UseHttpsRedirection();
+            app.UseCustomExceptionHandler();
 
             app.UseRouting();
 

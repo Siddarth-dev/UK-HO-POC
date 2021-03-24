@@ -26,21 +26,16 @@ namespace Persistence.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<Guid?>("BatchId")
+                    b.Property<Guid>("BatchId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("GroupName")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("BatchId");
+                    b.HasIndex("BatchId")
+                        .IsUnique();
 
                     b.ToTable("Acls");
                 });
@@ -54,10 +49,10 @@ namespace Persistence.Migrations
                     b.Property<DateTime>("BatchPublishedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("BatchStatusId")
+                    b.Property<int>("BatchStatusId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("BusinessUnitId")
+                    b.Property<int>("BusinessUnitId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("Created")
@@ -94,7 +89,7 @@ namespace Persistence.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<Guid?>("BatchId")
+                    b.Property<Guid>("BatchId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsActive")
@@ -149,29 +144,81 @@ namespace Persistence.Migrations
                     b.ToTable("BusinessUnities");
                 });
 
+            modelBuilder.Entity("Domain.Entities.ReadGroup", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<string>("GroupName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ReadGroups");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ReadUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ReadUsers");
+                });
+
             modelBuilder.Entity("Domain.Entities.Acl", b =>
                 {
                     b.HasOne("Domain.Entities.Batch", "Batch")
-                        .WithMany("Acls")
-                        .HasForeignKey("BatchId");
+                        .WithOne("Acl")
+                        .HasForeignKey("Domain.Entities.Acl", "BatchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Domain.Entities.Batch", b =>
                 {
                     b.HasOne("Domain.Entities.BatchStatus", "BatchStatus")
                         .WithMany()
-                        .HasForeignKey("BatchStatusId");
+                        .HasForeignKey("BatchStatusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Domain.Entities.BusinessUnit", "BusinessUnit")
                         .WithMany()
-                        .HasForeignKey("BusinessUnitId");
+                        .HasForeignKey("BusinessUnitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Domain.Entities.BatchAttribute", b =>
                 {
                     b.HasOne("Domain.Entities.Batch", "Batch")
                         .WithMany("BatchAttributes")
-                        .HasForeignKey("BatchId");
+                        .HasForeignKey("BatchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Entities.ReadGroup", b =>
+                {
+                    b.HasOne("Domain.Entities.Acl", "Acl")
+                        .WithMany("ReadGroups")
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Entities.ReadUser", b =>
+                {
+                    b.HasOne("Domain.Entities.Acl", "Acl")
+                        .WithMany("ReadUsers")
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
