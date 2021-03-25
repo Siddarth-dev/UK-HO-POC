@@ -7,7 +7,7 @@ namespace Persistence
 {
     public class Seed
     {
-        public static async Task SeedData(DataContext context)
+        public static void SeedData(DataContext context)
         {
             if (!context.BatchStatus.Any())
             {
@@ -30,8 +30,8 @@ namespace Persistence
                         IsActive = true
                     }
                 };
-                await context.BatchStatus.AddRangeAsync(batchStatus);
-                await context.SaveChangesAsync();
+                context.BatchStatus.AddRange(batchStatus);
+                context.SaveChanges();
             }
             if (!context.BusinessUnities.Any())
             {
@@ -49,8 +49,8 @@ namespace Persistence
                         IsActive = true
                     }
                 };
-                await context.BusinessUnities.AddRangeAsync(businessUnities);
-                await context.SaveChangesAsync();
+                context.BusinessUnities.AddRange(businessUnities);
+                context.SaveChanges();
             }
         }
     }
