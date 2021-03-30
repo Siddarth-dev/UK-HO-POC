@@ -23,8 +23,8 @@ namespace API.Test.Controllers
         [Test]
         public async Task ReturnsBatchViewModel()
         {
-            Guid id = new Guid("1ae98284-43f8-4f83-e59a-08d8eea2fd62");
-            var response = await _client.GetAsync($"/api/batch/Details/{id}");
+            Guid id = new Guid("40F74BE9-6CCB-4CDC-DEEE-08D8EEB37A9E");
+            var response = await _client.GetAsync($"/api/batch/{id}");
 
             response.EnsureSuccessStatusCode();
 
@@ -38,7 +38,7 @@ namespace API.Test.Controllers
         public async Task ReturnsNotFoundBatchViewModel()
         {
             Guid id = Guid.NewGuid();
-            var response = await _client.GetAsync($"/api/batch/Details/{id}");
+            var response = await _client.GetAsync($"/api/batch/{id}");
 
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
@@ -62,7 +62,7 @@ namespace API.Test.Controllers
 
             var content = Utilities.GetRequestContent(command);
 
-            var response = await _client.PostAsync($"/api/batch/create", content);
+            var response = await _client.PostAsync($"/api/batch", content);
 
             var vm = await Utilities.GetResponseContent<ValidationException>(response);
             Assert.IsFalse(response.IsSuccessStatusCode);
@@ -94,7 +94,7 @@ namespace API.Test.Controllers
 
             var content = Utilities.GetRequestContent(command);
 
-            var response = await _client.PostAsync($"/api/batch/create", content);
+            var response = await _client.PostAsync($"/api/batch", content);
 
             response.EnsureSuccessStatusCode();
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);

@@ -19,17 +19,7 @@ namespace Application.Batch.Commands.CreateBatch
 
         public async Task<Guid> Handle(CreateBatchCommand request, CancellationToken cancellationToken)
         {
-            //var buEntity = _context.BusinessUnities.Where(a=> (string.Compare(a.BusinessUnitName, request.BusinessUnit, true) == 0) && a.IsActive).FirstOrDefault();
             var buEntity = _context.BusinessUnities.Where(a=> a.BusinessUnitName.Contains(request.BusinessUnit) && a.IsActive).FirstOrDefault();
-            if (buEntity == null)
-            {
-                buEntity = new BusinessUnit{
-                    BusinessUnitName = request.BusinessUnit,
-                    IsActive = true
-                };
-                await _context.BusinessUnities.AddAsync(buEntity);
-                // await _context.SaveChangesAsync();
-            }
             var statusEntity = _context.BatchStatus.Where(a => a.Status == "Incomplete" && a.IsActive).FirstOrDefault();
             
             var entity = new Domain.Entities.Batch
@@ -46,27 +36,28 @@ namespace Application.Batch.Commands.CreateBatch
             };
 
             await _context.Batches.AddAsync(entity);
-            // await _context.SaveChangesAsync();
 
-            var attEntity = new List<BatchAttribute>();
-            foreach (var item in request.Attributes)
+            if (request.Attributes != null && request.Attributes.Any())
             {
-                attEntity.Add(new BatchAttribute{
-                    Key = item.Key,
-                    Value = item.Value,
-                    IsActive = true,
-                    Batch = entity
-                });
+                var attEntity = new List<BatchAttribute>();
+                foreach (var item in request.Attributes)
+                {
+                    attEntity.Add(new BatchAttribute{
+                        Key = item.Key,
+                        Value = item.Value,
+                        IsActive = true,
+                        Batch = entity
+                    });
+                }
+                await _context.BatchAttributes.AddRangeAsync(attEntity);
             }
-            await _context.BatchAttributes.AddRangeAsync(attEntity);
             
             var aclEntities = new Acl();
             aclEntities.Batch = entity;
             aclEntities.IsActive = true;
             aclEntities.BatchId = entity.Id;
-            //_context.Acls.FirstOrDefault(a=>a.Id.Equals(1));//.AddAsync(aclEntities);
             entity.Acl = aclEntities;
-            // await _context.SaveChangesAsync();
+            
             if (request.Acl != null && request.Acl.ReadGroups != null && request.Acl.ReadGroups.Any())
             {
                 foreach (var item in request.Acl.ReadGroups)

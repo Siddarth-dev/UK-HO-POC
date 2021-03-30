@@ -21,15 +21,20 @@ namespace API.Controllers
 
         // GET api/batch/batchId
         [HttpGet("{batchId}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BatchDetailModel), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status410Gone)]
-        public async Task<BatchDetailModel> Details(Guid batchId)
+        public async Task<ActionResult> Details(Guid batchId)
         {
-            return await Mediator.Send(new BatchDetailQuery{BatchId = batchId});
-            // return Ok(await Mediator.Send(new BatchDetailQuery{BatchId = batchId}));
+            //return await Mediator.Send(new BatchDetailQuery{BatchId = batchId});
+            var result = await Mediator.Send(new BatchDetailQuery{BatchId = batchId});
+            if (result.ExpiryDate < DateTime.Now)
+            {
+                return StatusCode(410);
+            }
+            return Ok(result);
         }
     }
 }

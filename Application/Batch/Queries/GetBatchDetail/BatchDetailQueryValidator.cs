@@ -1,12 +1,12 @@
-// using FluentValidation;
+using FluentValidation;
 
 namespace Application.Batch.Queries.GetBatchDetail
 {
-    public class BatchDetailQueryValidator //: AbstractValidator<BatchDetailQuery>
+    public class BatchDetailQueryValidator : AbstractValidator<BatchDetailQuery>
     {
-        // public BatchDetailQueryValidator()
-        // {
-        //     RuleFor(v => v.BatchId).NotEmpty();
-        // }
+        public BatchDetailQueryValidator()
+        {
+            RuleFor(v => v.BatchId).NotEmpty().NotNull();
+        }
     }
 }
