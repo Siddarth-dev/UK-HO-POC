@@ -12,16 +12,18 @@ namespace Application.Batch.Commands.CreateBatch
     public class CreateBatchCommandHandler : IRequestHandler<CreateBatchCommand, Guid>
     {
         private readonly DataContext _context;
-        public CreateBatchCommandHandler(DataContext context)
+        private readonly IMediator _mediator;
+        public CreateBatchCommandHandler(DataContext context, IMediator mediator)
         {
+            _mediator = mediator;
             _context = context;
         }
 
         public async Task<Guid> Handle(CreateBatchCommand request, CancellationToken cancellationToken)
         {
-            var buEntity = _context.BusinessUnities.Where(a=> a.BusinessUnitName.Contains(request.BusinessUnit) && a.IsActive).FirstOrDefault();
+            var buEntity = _context.BusinessUnities.Where(a => a.BusinessUnitName.Contains(request.BusinessUnit) && a.IsActive).FirstOrDefault();
             var statusEntity = _context.BatchStatus.Where(a => a.Status == "Incomplete" && a.IsActive).FirstOrDefault();
-            
+
             var entity = new Domain.Entities.Batch
             {
                 BatchStatus = statusEntity,
@@ -42,7 +44,8 @@ namespace Application.Batch.Commands.CreateBatch
                 var attEntity = new List<BatchAttribute>();
                 foreach (var item in request.Attributes)
                 {
-                    attEntity.Add(new BatchAttribute{
+                    attEntity.Add(new BatchAttribute
+                    {
                         Key = item.Key,
                         Value = item.Value,
                         IsActive = true,
@@ -51,33 +54,35 @@ namespace Application.Batch.Commands.CreateBatch
                 }
                 await _context.BatchAttributes.AddRangeAsync(attEntity);
             }
-            
+
             var aclEntities = new Acl();
             aclEntities.Batch = entity;
             aclEntities.IsActive = true;
             aclEntities.BatchId = entity.Id;
             entity.Acl = aclEntities;
-            
+
             if (request.Acl != null && request.Acl.ReadGroups != null && request.Acl.ReadGroups.Any())
             {
                 foreach (var item in request.Acl.ReadGroups)
                 {
-                    aclEntities.ReadGroups.Add(new ReadGroup() {GroupName = item, Acl = aclEntities});
+                    aclEntities.ReadGroups.Add(new ReadGroup() { GroupName = item, Acl = aclEntities });
                 }
             }
             await _context.ReadGroups.AddRangeAsync(aclEntities.ReadGroups);
 
-            if (request.Acl != null && request.Acl.ReadUsers!= null && request.Acl.ReadUsers.Any())
+            if (request.Acl != null && request.Acl.ReadUsers != null && request.Acl.ReadUsers.Any())
             {
                 foreach (var item in request.Acl.ReadUsers)
                 {
-                    aclEntities.ReadUsers.Add(new ReadUser() {UserName = item, Acl = aclEntities});
+                    aclEntities.ReadUsers.Add(new ReadUser() { UserName = item, Acl = aclEntities });
                 }
             }
             await _context.ReadUsers.AddRangeAsync(aclEntities.ReadUsers);
             await _context.Acls.AddAsync(aclEntities);
             await _context.SaveChangesAsync();
-            
+
+            await _mediator.Publish(new CreateBatchContainer { BatchId = entity.Id.ToString().ToLower() }, cancellationToken);
+
             return entity.Id;
         }
     }

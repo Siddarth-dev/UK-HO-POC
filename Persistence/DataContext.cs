@@ -16,6 +16,7 @@ namespace Persistence
         public DbSet<Acl> Acls { get; set; }
         public DbSet<ReadGroup> ReadGroups { get; set; }
         public DbSet<ReadUser> ReadUsers { get; set; }
+        public DbSet<UploadBatchFile> UploadBatchFiles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -18,7 +18,7 @@ namespace Application.Test.Batch.Commands.CreateBatch
         {
             // Arrange
             var mediatorMock = new Mock<IMediator>();
-            var sut = new CreateBatchCommandHandler(_context);
+            var sut = new CreateBatchCommandHandler(_context, mediatorMock.Object);
             var command = new CreateBatchCommand
             {
                 BusinessUnit = "Demo0 BU",

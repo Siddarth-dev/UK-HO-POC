@@ -1,9 +1,11 @@
 using System;
 using System.Threading.Tasks;
 using Application.Batch.Commands.CreateBatch;
+using Application.Batch.Commands.UploadBatchFile;
 using Application.Batch.Queries.GetBatchDetail;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace API.Controllers
 {
@@ -35,6 +37,16 @@ namespace API.Controllers
                 return StatusCode(410);
             }
             return Ok(result);
+        }
+
+        [HttpPost("{batchId}/{filename}")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        public async Task<ActionResult> Upload(Guid batchId, string filename,
+        [FromHeader(Name = "X-Content-Size")] long size,
+        [FromHeader(Name = "X-MIME-Type")] string mime = "application/octet-stream")
+        {
+            var result = await Mediator.Send(new UploadBatchFileCommand{BatchId = batchId, MimeType = mime, FileSize = size, FileName = filename});
+            return CreatedAtAction(nameof(Details), new {batchId = batchId}, null);
         }
     }
 }
