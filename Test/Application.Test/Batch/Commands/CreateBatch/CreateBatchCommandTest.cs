@@ -40,7 +40,7 @@ namespace Application.Test.Batch.Commands.CreateBatch
             // Assert
             Assert.IsNotNull(result);
             Assert.IsInstanceOf<Guid>(result);
-            //mediatorMock.Verify(m => m.Publish(It.Is<CreateBatchCommand>(cc => cc.id == newCustomerId), It.IsAny<CancellationToken>()), Times.Once);
+            mediatorMock.Verify(m => m.Publish(It.Is<CreateBatchContainer>(cc => cc.BatchId == result.ToString()), It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

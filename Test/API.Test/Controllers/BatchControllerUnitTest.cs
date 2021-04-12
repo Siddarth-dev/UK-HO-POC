@@ -23,7 +23,7 @@ namespace API.Test.Controllers
         [Test]
         public async Task ReturnsBatchViewModel()
         {
-            Guid id = new Guid("40F74BE9-6CCB-4CDC-DEEE-08D8EEB37A9E");
+            Guid id = new Guid("2bb5d385-8dd8-412a-b28d-08d8fcec5543");//("40F74BE9-6CCB-4CDC-DEEE-08D8EEB37A9E");
             var response = await _client.GetAsync($"/api/batch/{id}");
 
             response.EnsureSuccessStatusCode();
