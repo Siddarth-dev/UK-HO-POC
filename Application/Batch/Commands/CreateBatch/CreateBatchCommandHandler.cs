@@ -79,9 +79,9 @@ namespace Application.Batch.Commands.CreateBatch
             }
             await _context.ReadUsers.AddRangeAsync(aclEntities.ReadUsers);
             await _context.Acls.AddAsync(aclEntities);
-            await _context.SaveChangesAsync();
 
             await _mediator.Publish(new CreateBatchContainer { BatchId = entity.Id.ToString().ToLower() }, cancellationToken);
+            await _context.SaveChangesAsync();
 
             return entity.Id;
         }

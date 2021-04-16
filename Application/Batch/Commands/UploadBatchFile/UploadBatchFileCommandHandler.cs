@@ -34,9 +34,15 @@ namespace Application.Batch.Commands.UploadBatchFile
             };
 
             await _context.UploadBatchFiles.AddAsync(entity);
-            await _context.SaveChangesAsync();
-            // var path = @"..\..\..\..\Infrastructure\UploadTestFiles\Test.json";
-            var path = @"F:\Siddarth\Hydrographic\batchdemo\Infrastructure\UploadTestFiles\Test.json";
+            /**
+             * * Used for Local
+            */ 
+            // var path = @"~..\..\..\Infrastructure\UploadTestFiles\Test.json";//For local
+            /**
+             * * Used for Azure
+            */ 
+            var path = System.IO.Directory.GetCurrentDirectory() + @"\Test.json";//For Azure
+            // var path = @"F:\Siddarth\Hydrographic\batchdemo\Infrastructure\UploadTestFiles\Test.json";
 
             using var fs = new FileStream(path, FileMode.Open, FileAccess.Read);
             using var sr = new StreamReader(fs, Encoding.UTF8);
@@ -50,6 +56,7 @@ namespace Application.Batch.Commands.UploadBatchFile
                 MimeType = entity.MimeType
             };
             await _mediator.Publish(uploadBatchFileToContainer, cancellationToken);
+            await _context.SaveChangesAsync();
 
             return Unit.Value;
         }
